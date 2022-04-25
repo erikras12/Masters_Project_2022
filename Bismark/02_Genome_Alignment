@@ -1,0 +1,18 @@
+#!/bin/bash
+#$ -pe smp 1
+#$ -l h_vmem=32G
+#$ -l h_rt=240:0:0
+#$ -cwd
+#$ -j y
+
+module load bismark
+module load bowtie2
+
+
+for file in /data/scratch/bt211057/01_read_cleaning/Reads/00Illumina_RawReads/*trimmed_reads.fastq.gz
+
+do
+        newname=`basename $file | sed -e "s/_trimmed_reads.fastq.gz/_bismark_aligned_reads.fastq.gz/"`
+        bismark --bowtie2 -q --phred33-quals --score_min L,0,-0.25 /data/scratch/bt211057/02_Genome_indexing $file > ./"$newname"
+
+done
