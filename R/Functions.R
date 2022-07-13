@@ -109,3 +109,30 @@ makeManhattanPlots <- function(DMSfile, annotFile, GYgynogff, mycols=c("grey50",
           strip.placement = "outside")+
     ggtitle(mytitle)
 }
+
+subset_unite<-function(myDiff_obj,unite_obj){
+  pos_of_interest_trt <- paste(myDiff_obj[["chr"]],myDiff_obj[["start"]])
+  
+  #identify no. pf CpGs
+  unite_obj$start
+
+  length(myDiff_obj$chr)
+  #table(unite_obj$chr == myDiff_obj$chr & 
+  #       unite_obj$start == myDiff_obj$start)
+  
+  #see if there are any duplicates
+  table(duplicated(paste(unite_obj$chr,unite_obj$start)))
+  
+  #check wether number of True's == no of CpGs identified above
+  table(paste(unite_obj$chr, unite_obj$start) %in% paste(myDiff_obj$chr, myDiff_obj$start))
+  
+  #add columns to unite object and my diff object (by combining chrom and pos)
+  unite_obj$pos <- paste(unite_obj$chr, unite_obj$start)
+  myDiff_obj$pos <- paste(myDiff_obj$chr, myDiff_obj$start)
+  #make object containing CpGs which have matching pos in both unite and myDiff 
+  rows_to_keep<-which(unite_obj$pos %in% myDiff_obj$pos)
+  head(rows_to_keep)
+  
+  #subset the unite
+  methyl_unite_rows_selected_trt<-methylKit::select(x = unite_obj,i = rows_to_keep)
+}
