@@ -1,4 +1,8 @@
-load("R_shit/DMS_Sex.RDS")
+DMS_Sex<-readRDS("R_data/DMS_Sex.RDS")
+DMS_Trt<-readRDS("R_data/DMS_Trt.RDS")
+DMS_Sex_Trt<-readRDS("R_data/DMS_Sex_Trt.RDS")
+load("R_data/myMetaData.RDS")
+
 
 #read annotation files
 annotBed12= readTranscriptFeatures("R_shit/Gy_allnoM_rd3.maker_apocrita.noseq_corrected.gff.streamlined_for_AGAT.CURATED.transdec.bed12",remove.unusual = FALSE, up.flank = 1500, down.flank = 500)
@@ -42,6 +46,20 @@ Sex_biggest_Diff_man_Plot
 
 #manhattan Plot showing DMS patterns accross the genome
 #the data for trt treatment had more than 2 factors which meant that it was unable to be visualised via a manhattan Plot same with the Sex_trt data 
+
+#load unite object for Trt and Sex_trt
+unite_for_DMS_Trt_w_sx<-readRDS("R_data/unite_for_DMS_Trt.RDS")
+unite_for_DMS_Trt<- unite_for_DMS_Trt_w_sx[!unite_for_DMS_Trt_w_sx$chr %in% c("Gy_chrXIX","Gy_chrUn"),]
+
+unite_for_DMS_Sex_Trt_w_sx <- readRDS("R_data/unite_for_DMS_Sex_Trt.RDS")
+unite_for_DMS_Sex_Trt<- unite_for_DMS_Sex_Trt_w_sx[!unite_for_DMS_Sex_Trt_w_sx$chr %in% c("Gy_chrXIX","Gy_chrUn"),]
+
+#subset the unite object for both treatments by the samples which show significant differences in their respective mydiff objects
+methyl_unite_rows_selected_trt<-subset_unite(myDiff25p_Trt,unite_for_DMS_Trt)
+methyl_unite_rows_selected_Sex_trt<-subset_unite(myDiff25p_Sex_Trt,unite_for_DMS_Sex_Trt)
+
+
+
 
 annot_Trt <- as.data.frame(TrtAnn@members)
 Trt_Diff_man_Plot<-makeManhattanPlots(DMSfile = myDiff25p_Trt, annotFile = annot_Trt, GYgynogff = GYgynogff, 
