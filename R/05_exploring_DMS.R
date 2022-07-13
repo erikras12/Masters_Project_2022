@@ -57,136 +57,220 @@ unite_for_DMS_Sex_Trt<- unite_for_DMS_Sex_Trt_w_sx[!unite_for_DMS_Sex_Trt_w_sx$c
 #subset the unite object for both treatments by the samples which show significant differences in their respective mydiff objects
 methyl_unite_rows_selected_trt<-subset_unite(myDiff25p_Trt,unite_for_DMS_Trt)
 methyl_unite_rows_selected_Sex_trt<-subset_unite(myDiff25p_Sex_Trt,unite_for_DMS_Sex_Trt)
+#these object can be used to again subset 
+##################################################################################################################################################
+##### subsetting the unite for G1G2 by the DMS for G1G2 treatment into its 4 factors
+##################################################################################################################################################
+
+#run percmet_for_trt to get average meth for each CpG (in this case for trt 1 = e_control)
+e_control<-percMeth_for_trt(methyl_unite_rows_selected_trt,trt = 1)
+e_control_df<-data.frame(e_control)
+e_control_obj<-methylKit::reorganize(methyl_unite_rows_selected_trt, treatment = myMetaData$trtG1G2_NUM[myMetaData$trtG1G2_NUM %in% 1],
+                              sample.ids = myMetaData$SampleID[myMetaData$trtG1G2_NUM %in% 1])
+#add chr column and pos column for manhatton plot
+e_control_df$chr <- e_control_obj$chr
+e_control_df$pos <- e_control_obj$start
+#name the methylation column avg.meth
+colnames(e_control_df)[1] <- "avg.meth"
+
+
+e_exposed<-percMeth_for_trt(methyl_unite_rows_selected_trt,trt = 2)
+e_exposed_df<-data.frame(e_exposed)
+e_exposed_obj<-methylKit::reorganize(methyl_unite_rows_selected_trt, treatment = myMetaData$trtG1G2_NUM[myMetaData$trtG1G2_NUM %in% 2],
+                              sample.ids = myMetaData$SampleID[myMetaData$trtG1G2_NUM %in% 2])
+e_exposed_df$chr <- e_exposed_obj$chr
+e_exposed_df$pos <- e_exposed_obj$start
+colnames(e_exposed_df)[1] <- "avg.meth"
 
 
 
+ne_control<-percMeth_for_trt(methyl_unite_rows_selected_trt,trt = 3)
+ne_control_df<-data.frame(ne_control)
+ne_control_obj<-methylKit::reorganize(methyl_unite_rows_selected_trt, treatment = myMetaData$trtG1G2_NUM[myMetaData$trtG1G2_NUM %in% 3],
+                              sample.ids = myMetaData$SampleID[myMetaData$trtG1G2_NUM %in% 3])
+ne_control_df$chr <- ne_control_obj$chr
+ne_control_df$pos <- ne_control_obj$start
+colnames(ne_control_df)[1] <- "avg.meth"
+
+
+
+ne_exposed<-percMeth_for_trt(methyl_unite_rows_selected_trt,trt = 4)
+ne_exposed_df<-data.frame(ne_exposed)
+ne_exposed_obj<-methylKit::reorganize(methyl_unite_rows_selected_trt, treatment = myMetaData$trtG1G2_NUM[myMetaData$trtG1G2_NUM %in% 4],
+                              sample.ids = myMetaData$SampleID[myMetaData$trtG1G2_NUM %in% 4])
+ne_exposed_df$chr <- ne_exposed_obj$chr
+ne_exposed_df$pos <- ne_exposed_obj$start
+colnames(ne_exposed_df)[1] <- "avg.meth"
+
+
+#we can observe these data points on a manhattan plot now showing the percentage methylation of each DMS for each treatment
 
 annot_Trt <- as.data.frame(TrtAnn@members)
-Trt_Diff_man_Plot<-makeManhattanPlots(DMSfile = myDiff25p_Trt, annotFile = annot_Trt, GYgynogff = GYgynogff, 
-                                      mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of Trt Diff")
-Trt_Diff_man_Plot
+
+##PLOT FOR TRT 1 (EXPOSED G1 - CONTROL G2)
+TRT_1_mnplot<-makeManhattanPlots_mult_trt(DMSfile = e_control_df, annotFile = annot_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of e_control individuals")
+
+TRT_2_mnplot<-makeManhattanPlots_mult_trt(DMSfile = e_exposed_df, annotFile = annot_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of e_exposed individuals")
+
+TRT_3_mnplot<-makeManhattanPlots_mult_trt(DMSfile = ne_control_df, annotFile = annot_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of ne_control individuals")
+
+TRT_4_mnplot<-makeManhattanPlots_mult_trt(DMSfile = ne_exposed_df, annotFile = annot_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of ne_exposed individuals")
+
+grid.arrange(TRT_1_mnplot, TRT_2_mnplot,TRT_3_mnplot,TRT_4_mnplot, ncol=1)
 
 
-annot_Sex_Trt <- as.data.frame(Sex_Trt_ANN@members)
-Sex_Trt_Diff_man_Plot<-makeManhattanPlots(DMSfile = myDiff25p_Sex_Trt, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
-                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of Sex+Trt Diff")
-Sex_Trt_Diff_man_Plot
 
-unite_for_DMS_Sex_Trt<-readRDS("R_shit/unite_for_DMS_Sex_Trt.RDS")
+## Preparing Sex_trt groups for manhatton Plot
+### Exposed fater group (M&F)
 
-pos_of_interest <- paste(myDiff25p_Sex_Trt[["chr"]],myDiff25p_Sex_Trt[["start"]])
-
-unite_for_DMS_Sex$start
-#there should be 12559 CpGs
-length(myDiff25p_Sex_Trt$chr)
-table(unite_for_DMS_Sex_Trt$chr == myDiff25p_Sex_Trt$chr & 
-        unite_for_DMS_Sex_Trt$start == myDiff25p_Sex_Trt$start)
-
-table(duplicated(paste(unite_for_DMS_Sex_Trt$chr,unite_for_DMS_Sex_Trt$start)))
+F_E_control<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 1)
 
 
-table(paste(unite_for_DMS_Sex_Trt$chr, unite_for_DMS_Sex_Trt$start) %in% paste(myDiff25p_Sex_Trt$chr, myDiff25p_Sex_Trt$start))
 
-unite_for_DMS_Sex_Trt$pos <- paste(unite_for_DMS_Sex_Trt$chr, unite_for_DMS_Sex_Trt$start)
-myDiff25p_Sex_Trt$pos <- paste(myDiff25p_Sex_Trt$chr, myDiff25p_Sex_Trt$start)
-rows_to_keep<-which(unite_for_DMS_Sex_Trt$pos %in% myDiff25p_Sex_Trt$pos)
-head(rows_to_keep)
-
-methyl_unite_rows_selected<-methylKit::select(x = unite_for_DMS_Sex_Trt,i = rows_to_keep)
-
-percMeth_for_trt_sex<-function(methobj,trt){
-  obj2<-methylKit::reorganize(methobj, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% trt],
-                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% trt])
-  
-  perc_obj2<-percMethylation(obj2)
-  row_mean_trt_1 <-rowMeans(perc_obj2,na.rm = T)
-  
-}
-
-F_E_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 1)
 F_E_control_df<-data.frame(F_E_control)
-F_E_control_df$chr <- obj2$chr
-F_E_control_df$pos <- obj2$start
-F_E_control_df$pos <- as.numeric(obj2$start)
+F_E_control_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 1],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 1])
+F_E_control_df$chr <- F_E_control_obj$chr
+F_E_control_df$pos <- F_E_control_obj$start
 colnames(F_E_control_df)[1] <- "avg.meth"
 
-M_E_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 2)
-F_E_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 3)
-M_E_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 4)
 
-F_NE_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 5)
-F_NE_control_df<-data.frame(F_E_control)
-F_NE_control_df$chr <- obj2$chr
-F_NE_control_df$pos <- obj2$start
-F_NE_control_df$pos <- as.numeric(obj2$start)
+
+M_E_control<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 2)
+M_E_control_df<-data.frame(M_E_control)
+M_E_control_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 2],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 2])
+M_E_control_df$chr <- M_E_control_obj$chr
+M_E_control_df$pos <- M_E_control_obj$start
+colnames(M_E_control_df)[1] <- "avg.meth"
+
+
+F_E_exposed<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 3)
+F_E_exposed_df<-data.frame(F_E_exposed)
+F_E_exposed_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 3],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 3])
+F_E_exposed_df$chr <-F_E_exposed_obj$chr
+F_E_exposed_df$pos <-F_E_exposed_obj$start
+colnames(F_E_exposed_df)[1] <- "avg.meth"
+
+
+M_E_exposed<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 4)
+M_E_exposed_df<-data.frame(M_E_exposed)
+M_E_exposed_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 4],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 4])
+M_E_exposed_df$chr <-M_E_exposed_obj$chr
+M_E_exposed_df$pos <-M_E_exposed_obj$start
+colnames(M_E_exposed_df)[1] <- "avg.meth"
+
+annot_Sex_Trt <- as.data.frame(Sex_Trt_ANN@members)
+
+##PLOT FOR TRT 1 Female(EXPOSED G1 - CONTROL G2)
+Sex_Trt_1<-makeManhattanPlots_mult_trt(DMSfile = F_E_control_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of e_control Females")
+
+
+##PLOT FOR TRT 2 male(EXPOSED G1 - CONTROL G2)
+Sex_Trt_2<-makeManhattanPlots_mult_trt(DMSfile = M_E_control_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of e_control Males")
+
+
+##PLOT FOR TRT 3 female(EXPOSED G1 - exposed G2)
+Sex_Trt_3<-makeManhattanPlots_mult_trt(DMSfile =F_E_exposed_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of e_exposed Females")
+
+
+##PLOT FOR TRT 4 male(EXPOSED G1 - Exposed G2)
+Sex_Trt_4<-makeManhattanPlots_mult_trt(DMSfile = M_E_exposed_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of e_exposed Males")
+
+
+
+### Control father group (M&F)
+
+
+
+F_NE_control<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 5)
+F_NE_control_df<-data.frame(F_NE_control)
+F_NE_control_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 5],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 5])
+F_NE_control_df$chr <- F_NE_control_obj$chr
+F_NE_control_df$pos <- F_NE_control_obj$start
 colnames(F_NE_control_df)[1] <- "avg.meth"
 
 
-
-M_NE_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 6)
-F_NE_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 7)
-M_NE_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 8)
-
-Sex_Trt_Diff_man_Plot<-makeManhattanPlots(DMSfile = F_E_control_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
-                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of Sex+Trt Diff")
-
-Sex_Trt_Diff_man_Plot
+M_NE_control<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 6)
+M_NE_control_df<-data.frame(M_NE_control)
+M_NE_control_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 6],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 6])
+M_NE_control_df$chr <- M_NE_control_obj$chr
+M_NE_control_df$pos <- M_NE_control_obj$start
+colnames(M_NE_control_df)[1] <- "avg.meth"
 
 
+F_NE_exposed<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 7)
+F_NE_exposed_df<-data.frame(F_NE_exposed)
+F_NE_exposed_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 7],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 7])
+F_NE_exposed_df$chr <-F_NE_exposed_obj$chr
+F_NE_exposed_df$pos <-F_NE_exposed_obj$start
+colnames(F_NE_exposed_df)[1] <- "avg.meth"
 
-par(mfrow=c(2,2))
-plot1<-Sex_Trt_1
-plot2<-Sex_Trt_2
-plot3<-Sex_Trt_3
-plot4<-Sex_Trt_4
-plot5<-Sex_Trt_5
-plot6<-Sex_Trt_6
-plot7<-Sex_Trt_7
-plot8<-Sex_Trt_8
-grid.arrange(plot5,plot6,plot7,plot8, plot1, plot2,plot3,plot4,ncol=1,nrow=8)
-#looking at Sex diif between treatments
-grid.arrange(plot1, plot2, ncol=1)
-grid.arrange(plot3, plot4, ncol=1)
-grid.arrange(plot5, plot6, ncol=1)
-grid.arrange(plot7, plot8, ncol=1)
 
-#looking at trt differences
-grid.arrange(plot_3,plot_4,plot_1,plot_2,ncol = 1)
+M_NE_exposed<-percMeth_for_trt_sex(methyl_unite_rows_selected_Sex_trt,trt = 8)
+M_NE_exposed_df<-data.frame(M_NE_exposed)
+M_NE_exposed_obj<-methylKit::reorganize(methyl_unite_rows_selected_Sex_trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% 8],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% 8])
+M_NE_exposed_df$chr <-M_NE_exposed_obj$chr
+M_NE_exposed_df$pos <-M_NE_exposed_obj$start
+colnames(M_NE_exposed_df)[1] <- "avg.meth"
+
+
+
+
+##PLOT FOR TRT 5 female(NOT EXPOSED G1 - CONTROL G2)
+Sex_Trt_5<-makeManhattanPlots_mult_trt(DMSfile = F_NE_control_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of NE_control Females")
+
+
+
+
+##PLOT FOR TRT 6 male(NOT EXPOSED G1 - CONTROL G2)
+Sex_Trt_6<-makeManhattanPlots_mult_trt(DMSfile = M_NE_control_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of NE_control Males")
+
+
+
+##PLOT FOR TRT 7 female(NOT EXPOSED G1 - EXPOSED G2)
+Sex_Trt_7<-makeManhattanPlots_mult_trt(DMSfile = F_NE_exposed_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of NE_exposed Females")
+
+
+
+
+
+##PLOT FOR TRT 7 male(NOT EXPOSED G1 - EXPOSED G2)
+Sex_Trt_8<-makeManhattanPlots_mult_trt(DMSfile = M_NE_exposed_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
+                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of methylation values of NE_exposed males")
+
+
+
+
+grid.arrange(Sex_Trt_1,Sex_Trt_2,Sex_Trt_3,Sex_Trt_4,Sex_Trt_5,Sex_Trt_6,Sex_Trt_7,Sex_Trt_8, ncol=1)
+
 
 
 ###################################################################################################################################################################
+##### Venn #######################
 ###################################################################################################################################################################
-###################################################################################################################################################################
-myDiff25p_Sex$
-  
-  library(ggVennDiagram)
-x = list(DMS_Sex_COMP = paste(myDiff25p_Sex$chr,myDiff25p_Sex$start),
-         DMS_Sex_Trt_COMP = paste(myDiff25p_Sex_Trt$chr,myDiff25p_Sex_Trt$start),
-         DMS_Trt_COMP = paste(myDiff25p_Trt$chr,myDiff25p_Trt$start))
-ggVennDiagram(x) + scale_fill_gradient(low = "blue", high = "red")
 
-#correction for difference in statring data sets
-a = paste(DMS_Sex$chr,DMS_Sex$start)
-b = paste(DMS_Trt$chr,DMS_Trt$start)
-c = paste(DMS_Sex_Trt$chr,DMS_Sex_Trt$start)
-
-pos_int<-Reduce(intersect, list(a,b,c))
+#trying to identify how many DMS' treatments have in common 
 
 
-a1 = paste(myDiff25p_Sex$chr,myDiff25p_Sex$start)
-b1 = paste(myDiff25p_Trt$chr,myDiff25p_Trt$start)
-c1 = paste(myDiff25p_Sex_Trt$chr,myDiff25p_Sex_Trt$start)
-
-
-
-x = list(DMS_Trt_COMP = b1[b1 %in% pos_int],
-         DMS_Sex_Trt_COMP = c1[c1 %in% pos_int])
-ggVennDiagram(x) + scale_fill_gradient(low = "blue", high = "red")
-
-
-
-
-
+#subset unite for DMS SEX and Trt into the 4 treatment groups 
 CC<-methylKit::reorganize(unite_for_DMS_Sex_Trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% c(5, 6) ],
                                                       sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% c(5, 6)])
 CC@treatment
@@ -223,7 +307,7 @@ EC<-methylKit::reorganize(unite_g2_in_5_no_sxChr, treatment = myMetaData$Sex_trt
 EC@treatment
 
 
-
+#create covariates df to take into account genetic variation
 CC_samples<-CC@sample.ids
 CC_covariates <- as.data.frame(myMetaData$brotherPairID[ myMetaData$SampleID %in% CC_samples] )
 
