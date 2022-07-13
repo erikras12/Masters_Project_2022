@@ -136,3 +136,24 @@ subset_unite<-function(myDiff_obj,unite_obj){
   #subset the unite
   methyl_unite_rows_selected_trt<-methylKit::select(x = unite_obj,i = rows_to_keep)
 }
+
+percMeth_for_trt<-function(methobj,trt){
+  #create object which will subset by treatment
+  obj2<-methylKit::reorganize(methobj, treatment = myMetaData$trtG1G2_NUM[myMetaData$trtG1G2_NUM %in% trt],
+                              sample.ids = myMetaData$SampleID[myMetaData$trtG1G2_NUM %in% trt])
+  
+  #get perc meth from previous object
+  perc_obj2<-percMethylation(obj2)
+  #calcuate average of each CpG for each sample with the specific treatment
+  row_mean_trt_1 <-rowMeans(perc_obj2,na.rm = T)
+}
+
+percMeth_for_trt_sex<-function(methobj,trt){
+  obj2<-methylKit::reorganize(methobj, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% trt],
+                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% trt])
+  
+  perc_obj2<-percMethylation(obj2)
+  row_mean_trt_1 <-rowMeans(perc_obj2,na.rm = T)
+  
+}
+
