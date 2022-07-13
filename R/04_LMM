@@ -29,6 +29,11 @@ step(res_B_S_trt)
 myMetaData$res_trt_sex_BCI<-residuals(lm(residuals_BCI_sex~PAT * outcome ,data = fullMetadata4Eri))
 
 model_for_chris<-lmer(residuals_BCI_sex~PAT * outcome + (1|brotherPairID),data = myMetaData)
+
+#residuals are taken in this way when the independent factors are actually dependent
+#to observe whether they are independent you could do a chi squared test to see if they correlate or a simple lm with anova analyis 
+#to see if they significnalt alter eachother
+
 myMetaData$res_trt_sex_BCI <- residuals(lm(residuals_BCI_sex ~ PAT + outcome + PAT:outcome,data = myMetaData))
 
 #################################################################################################################
