@@ -159,121 +159,16 @@ Sex_Trt_ANN_M_CE_CON<-plotTargetAnnotation(Sex_Trt_ANN_M_CE,precedence=TRUE, mai
 Sex_Trt_ANN_F_EC_CON
 
 
-######################################################################################################################################################################################################################
-#what is the dispersion of the DMS' in terms of position and chromosome and how does the genome-wide methylation pattern differ between treatments
-######################################################################################################################################################################################################################
-
-
-annot_Sex <- as.data.frame(SexANN@members)
-Sex_Diff_man_Plot<-makeManhattanPlots(DMSfile = myDiff25p_Sex, annotFile = annot_Sex, GYgynogff = GYgynogff, 
-                                      mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of Sex Diff")
-Sex_Diff_man_Plot
-
-outliers_Sex = which(abs(myDiff25p_Sex$meth.diff)>25 + 2*sd(abs(myDiff25p_Sex$meth.diff)))
-
-outliers_annot_Sex <- as.data.frame(SexANN_M@members)[outliers_Sex,]
-
-Sex_biggest_Diff_man_Plot<-makeManhattanPlots(DMSfile = myDiff25p_Sex[outliers_Sex,], annotFile = outliers_annot_Sex, GYgynogff = GYgynogff, 
-                                              mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of biggest Sex Diff")
-
-Sex_biggest_Diff_man_Plot
-
-annot_Trt <- as.data.frame(TrtAnn@members)
-Trt_Diff_man_Plot<-makeManhattanPlots(DMSfile = myDiff25p_Trt, annotFile = annot_Trt, GYgynogff = GYgynogff, 
-                                      mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of Trt Diff")
-Trt_Diff_man_Plot
-
-
-annot_Sex_Trt <- as.data.frame(Sex_Trt_ANN@members)
-Sex_Trt_Diff_man_Plot<-makeManhattanPlots(DMSfile = myDiff25p_Sex_Trt, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
-                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of Sex+Trt Diff")
-Sex_Trt_Diff_man_Plot
-
-
-pos_of_interest <- paste(myDiff25p_Sex_Trt[["chr"]],myDiff25p_Sex_Trt[["start"]])
-
-unite_for_DMS_Sex$start
-#there should be 12559 CpGs
-length(myDiff25p_Sex_Trt$chr)
-table(unite_for_DMS_Sex_Trt$chr == myDiff25p_Sex_Trt$chr & 
-        unite_for_DMS_Sex_Trt$start == myDiff25p_Sex_Trt$start)
-
-table(duplicated(paste(unite_for_DMS_Sex_Trt$chr,unite_for_DMS_Sex_Trt$start)))
-
-
-table(paste(unite_for_DMS_Sex_Trt$chr, unite_for_DMS_Sex_Trt$start) %in% paste(myDiff25p_Sex_Trt$chr, myDiff25p_Sex_Trt$start))
-
-unite_for_DMS_Sex_Trt$pos <- paste(unite_for_DMS_Sex_Trt$chr, unite_for_DMS_Sex_Trt$start)
-myDiff25p_Sex_Trt$pos <- paste(myDiff25p_Sex_Trt$chr, myDiff25p_Sex_Trt$start)
-rows_to_keep<-which(unite_for_DMS_Sex_Trt$pos %in% myDiff25p_Sex_Trt$pos)
-head(rows_to_keep)
-
-methyl_unite_rows_selected<-methylKit::select(x = unite_for_DMS_Sex_Trt,i = rows_to_keep)
-
-percMeth_for_trt_sex<-function(methobj,trt){
-  obj2<-methylKit::reorganize(methobj, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% trt],
-                              sample.ids = myMetaData$SampleID[myMetaData$Sex_trt %in% trt])
-  
-  perc_obj2<-percMethylation(obj2)
-  row_mean_trt_1 <-rowMeans(perc_obj2,na.rm = T)
-  
-}
-
-F_E_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 1)
-F_E_control_df<-data.frame(F_E_control)
-F_E_control_df$chr <- obj2$chr
-F_E_control_df$pos <- obj2$start
-F_E_control_df$pos <- as.numeric(obj2$start)
-colnames(F_E_control_df)[1] <- "avg.meth"
-
-M_E_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 2)
-F_E_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 3)
-M_E_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 4)
-
-F_NE_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 5)
-F_NE_control_df<-data.frame(F_E_control)
-F_NE_control_df$chr <- obj2$chr
-F_NE_control_df$pos <- obj2$start
-F_NE_control_df$pos <- as.numeric(obj2$start)
-colnames(F_NE_control_df)[1] <- "avg.meth"
-
-
-
-M_NE_control<-percMeth_for_trt(methyl_unite_rows_selected,trt = 6)
-F_NE_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 7)
-M_NE_exposed<-percMeth_for_trt(methyl_unite_rows_selected,trt = 8)
-
-Sex_Trt_Diff_man_Plot<-makeManhattanPlots(DMSfile = F_E_control_df, annotFile = annot_Sex_Trt, GYgynogff = GYgynogff, 
-                                          mycols = c("red", "grey", "black", "green"), mytitle = "Manhattan plot of Sex+Trt Diff")
-
-Sex_Trt_Diff_man_Plot
-
-
-
-par(mfrow=c(2,2))
-plot1<-Sex_Trt_1
-plot2<-Sex_Trt_2
-plot3<-Sex_Trt_3
-plot4<-Sex_Trt_4
-plot5<-Sex_Trt_5
-plot6<-Sex_Trt_6
-plot7<-Sex_Trt_7
-plot8<-Sex_Trt_8
-grid.arrange(plot5,plot6,plot7,plot8, plot1, plot2,plot3,plot4,ncol=1,nrow=8)
-#looking at Sex diif between treatments
-grid.arrange(plot1, plot2, ncol=1)
-grid.arrange(plot3, plot4, ncol=1)
-grid.arrange(plot5, plot6, ncol=1)
-grid.arrange(plot7, plot8, ncol=1)
-
-#looking at trt differences
-grid.arrange(plot_3,plot_4,plot_1,plot_2,ncol = 1)
-
 unite_for_DMS_Sex_Trt<-readRDS("R_data/unite_for_DMS_Sex_Trt.RDS")
 unite_for_DMS_Sex_Trt<- unite_for_DMS_Sex_Trt[!unite_for_DMS_Sex_Trt$chr %in% c("Gy_chrXIX","Gy_chrUn"),]
 
 #####################################################################################################
-#Reorganize Sex_trt into groups the 4 treatment groups with 2 subgroups sex
+#Reorganize Sex_trt into groups the 4 treatment groups with 2 subgroups (sex)
+
+#TRT1 : MALE + FEMALE
+#TRT2 : MALE + FEMALE
+#TRT3 : MALE + FEMALE
+#TRT4 : MALE + FEMALE
 #####################################################################################################
 
 EC<-methylKit::reorganize(unite_for_DMS_Sex_Trt, treatment = myMetaData$Sex_trt[myMetaData$Sex_trt %in% c(1, 2) ],
@@ -295,7 +190,8 @@ CE@treatment
 
 
 #####################################################################################################
-#Find the DMS' between sexes within each group
+#Find the DMS' between sexes within each group by running calculateDiffMeth on groups, this indentifies sites which are 
+#differentially methylated between sexes within a treatment group.
 #####################################################################################################
 
 EC_samples<-EC@sample.ids
@@ -370,7 +266,7 @@ F_DMS_SEX_TRT_CE<-ce_get_dif[ce_get_dif$meth.diff > 0,]
 M_DMS_SEX_TRT_CE<-ce_get_dif[ce_get_dif$meth.diff < 0,]
 
 #####################################################################################################
-#Compare overlap of DMS' within treatment groups and sexes
+#Compare overlap of DMS' within treatment groups and sexes, see if there is a pattern between groups
 #####################################################################################################
 
 listsex = list(Exposed_Exposed_M = paste(M_DMS_SEX_TRT_EE$chr,M_DMS_SEX_TRT_EE$start),
@@ -408,6 +304,8 @@ ggVennDiagram(listx) +
 dev.off()
 
 
+#############################################################################################
+#identify genes which are associated with the sex DMS' within the 4 groups 
 #############################################################################################
 #2012 DMS' between Sex in ee trt
 ee_get_dif_exclusive<-ee_get_dif[!paste(ee_get_dif$chr,ee_get_dif$start) %in% 
@@ -462,7 +360,7 @@ DMS_for_annot_cc_get_dif<-paste(cc_get_dif_exclusive$chr, cc_get_dif_exclusive$s
 DMS_for_annot_ce_get_dif<-paste(ce_get_dif_exclusive$chr, ce_get_dif_exclusive$start,sep = " ")
 
 ###############################################################################################
-
+#function to assocate DMS' with genes
 getAnnotationFun <- function(METHOBJ){
   A = annotateWithGeneParts(target = as(METHOBJ,"GRanges"), feature = annotBed12)
   # Heckwolf 2020: To be associated to a gene, the pop-DMS had to be either inside the gene or,
@@ -568,7 +466,7 @@ anot_cc_get_dif_ <- anot_cc_get_dif %>%
 top_cc_genes = anot_cc_get_dif_[anot_cc_get_dif_$nCpGperGenekb>=1,]
 
 ######################################################################################
-
+#return gene symbols and fucntions
 getGeneSummary <- function(topgenes){
   
   df = data.frame(GeneSymbol = sapply(topgenes$Note, function(x) sub("Similar to ", "", x) %>% str_extract(".*:") %>% str_remove(":") %>% toupper),  # extract uniprot symbol from note, then uppercase
@@ -599,6 +497,7 @@ top_ec_genes_df<-getGeneSummary(top_ec_genes)
 top_ee_genes_df<-getGeneSummary(top_ee_genes)
 #######################################################################################################
 #are some of the genes shared between treatments? 
+#######################################################################################################
 top_cc_genes_df$GeneSymbol
 top_ce_genes_df$GeneSymbol
 top_ee_genes_df$GeneSymbol
@@ -623,12 +522,16 @@ matching_genes<-top_ce_genes_df[top_ce_genes_df$GeneSymbol %in%
                                     top_ee_genes_df$GeneSymbol,
                                     top_cc_genes_df$GeneSymbol),]
 
+
+matching_genes$GeneSymbol
 #"OR11A1" Olfactory receptors (GPCR)
 #"RPL28"  Among its related pathways are Peptide chain elongation and Influenza Infection
 #"ZBTB26", Predicted to be involved in regulation of transcription by RNA polymerase II
-matching_genes$GeneSymbol
-
+                  
 #######################################################################################################
+#Gene ontology analysis using sex-associated DMS' within treatment groups
+#######################################################################################################
+#create a gene universe
 gene_universe <- data.frame(
   subsetByOverlaps(GRanges(annotGff3), GRanges(unite_for_DMS_Sex_Trt))) %>% # subselect covered CpGs
   filter(lengths(Ontology_term)!=0) %>% # rm non existing GO terms
@@ -712,6 +615,7 @@ makedfGO <- function(annot_trt_get_diff, gene_universe){
   return(dfGO)
 }
 
+#run function to get GO terms for each gene
 df_GO_cc<-makedfGO(annot_trt_get_diff = anot_cc_get_dif, gene_universe = gene_universe)
 df_GO_ce<-makedfGO(annot_trt_get_diff = anot_ce_get_dif, gene_universe = gene_universe)
 df_GO_ec<-makedfGO(annot_trt_get_diff = anot_ec_get_dif, gene_universe = gene_universe)
@@ -722,8 +626,10 @@ df_GO_ce$trtG1G2<-"CONTROL-EXPOSED"
 df_GO_ec$trtG1G2<-"EXPOSED-CONTROL"
 df_GO_ee$trtG1G2<-"EXPOSED-EXPOSED"
 
+#join the df's into one
 dfGO <- rbind(df_GO_cc, df_GO_ce, df_GO_ec, df_GO_ee)
-
+                  
+#visualize the annotations in a dot plot 
 dfGO_trt<-dfGO %>% ggplot(aes(x=trtG1G2,y = factor(GO.name))) +
   geom_point(aes(color = p.value.adjusted, size = genePercent)) +
   scale_color_gradient(name="adjusted\np-value", low = "red", high = "blue") +
@@ -742,6 +648,11 @@ dfGO_trt
 
 dev.off()
 
+#previous plot looked at the annotations of genes (sex diffencenes within each treatment)
+#here we attribute the differences seen in the plot above to their corresponding sex
+
+# WE compared the males to the females so positive values are DMS' which are higher in females
+# and negative are DMS's which are higher in males
 F_DMS_SEX_TRT_CC<-cc_get_dif[cc_get_dif$meth.diff > 0,]
 M_DMS_SEX_TRT_CC<-cc_get_dif[cc_get_dif$meth.diff < 0,]
 
@@ -754,7 +665,8 @@ M_DMS_SEX_TRT_EE<-ee_get_dif[ee_get_dif$meth.diff < 0,]
 F_DMS_SEX_TRT_CE<-ce_get_dif[ce_get_dif$meth.diff > 0,]
 M_DMS_SEX_TRT_CE<-ce_get_dif[ce_get_dif$meth.diff < 0,]
 
-
+   
+#keep only exclusive DMS' for each group 
 F_DMS_SEX_TRT_CC_exclusive<-F_DMS_SEX_TRT_CC[!paste(F_DMS_SEX_TRT_CC$chr,F_DMS_SEX_TRT_CC$start) %in% 
                                                c(paste(M_DMS_SEX_TRT_CC$chr,M_DMS_SEX_TRT_CC$start),
                                                  paste(F_DMS_SEX_TRT_EC$chr,F_DMS_SEX_TRT_EC$start),
