@@ -1,8 +1,6 @@
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install("methylKit",force = TRUE)
-BiocManager::install("genomation",force = TRUE)
 library(methylKit)
 library(genomation)
 library(rtracklayer)
@@ -13,25 +11,15 @@ library(gridExtra)
 library(purrr)
 library(forcats)
 library(tidyr)
-BiocManager::install("AnnotationDbi")
 library(AnnotationDbi)
 library(GSEABase)
-BiocManager::install("Category")
-install.packages("Category")
 library(Category)
-BiocManager::install("GO.db")
-install.packages("GO.db")
 library(GO.db)
-BiocManager::install("GOstats")
 library(GOstats)
-BiocManager::install("goEnrichment")
 library(knitr)
-BiocManager::install("org.Hs.eg.db")
 library(org.Hs.eg.db)
-install.packages("rentrez")
 library(rentrez)
 library(devtools)
-install_github("asishallab/goEnrichment")
 library(goEnrichment)
 library(ggVennDiagram)
 library(grDevices)
@@ -76,8 +64,11 @@ SexANN = annotateWithGeneParts(as(myDiff25p_Sex,"GRanges"),annotBed12)
 SexANN_F = annotateWithGeneParts(as(myDiff25p_Sex[myDiff25p_Sex@treatment %in% 1],"GRanges"),annotBed12)
 SexANN_M = annotateWithGeneParts(as(myDiff25p_Sex[myDiff25p_Sex@treatment %in% 2],"GRanges"),annotBed12)
 
+#are there any regions which contain more sex-associated DMS' than expected
+
 z_F_s<- SexANN_F@num.precedence
 z_M_s<- SexANN_M@num.precedence
+
 
 for_chi_Sex<- as.data.frame(cbind(z_F_s,z_M_s))
 chisq<- chisq.test(for_chi_Sex)
@@ -96,10 +87,14 @@ TrtAnn_E_exposed = annotateWithGeneParts(as(myDiff25p_Trt[myDiff25p_Trt@treatmen
 TrtAnn_NE_control = annotateWithGeneParts(as(myDiff25p_Trt[myDiff25p_Trt@treatment %in% 3],"GRanges"),annotBed12)
 TrtAnn_NE_exposed = annotateWithGeneParts(as(myDiff25p_Trt[myDiff25p_Trt@treatment %in% 4],"GRanges"),annotBed12)
 
+#are there any regions which contain more treatment-associated DMS' than expected
+
 z_CC_s<- TrtAnn_NE_control@num.precedence
 z_CE_s<- TrtAnn_NE_exposed@num.precedence
 z_EE_s<- TrtAnn_E_exposed@num.precedence
 z_EC_s<- TrtAnn_E_control@num.precedence
+
+
 
 for_chi_Trt<- as.data.frame(cbind(z_CC_s,z_CE_s,z_EE_s,z_EC_s))
 chisq_trt<-chisq.test(for_chi_Trt)
@@ -125,6 +120,8 @@ Sex_Trt_ANN_M_CC = annotateWithGeneParts(as(myDiff25p_Sex_Trt_sd_2[myDiff25p_Sex
 Sex_Trt_ANN_F_CE = annotateWithGeneParts(as(myDiff25p_Sex_Trt_sd_2[myDiff25p_Sex_Trt_sd_2@treatment %in% 7],"GRanges"),annotBed12)
 Sex_Trt_ANN_M_CE = annotateWithGeneParts(as(myDiff25p_Sex_Trt_sd_2[myDiff25p_Sex_Trt_sd_2@treatment %in% 8],"GRanges"),annotBed12)
 
+#are there any regions which contain more Sex*treatment-associated DMS' than expected
+
 z_CC_M<- Sex_Trt_ANN_M_CC@num.precedence
 z_CC_F<- Sex_Trt_ANN_F_CC@num.precedence
 
@@ -137,6 +134,7 @@ z_EE_F<- Sex_Trt_ANN_F_EE@num.precedence
 z_EC_M<- Sex_Trt_ANN_M_EC@num.precedence
 z_EC_F<- Sex_Trt_ANN_F_EC@num.precedence
 
+
 for_chi_Trt_Sex<- as.data.frame(cbind(z_CC_M,z_CC_F,z_CE_M,z_CE_F,
                                   z_EE_M,z_EE_F,z_EC_M,z_EC_F))
 
@@ -144,6 +142,8 @@ for_chi_Trt_Sex_EC<- as.data.frame(cbind(z_CC_M,z_CC_F))
 chisq_Trt_Sex<-chisq.test(for_chi_Trt_Sex_EC)
 #p-value = 0.4015
 chisq_Trt_Sex
+
+#Vizualisation of DMS' in contect to genomic regions
 
 par(mfrow = c(2,4))
 
